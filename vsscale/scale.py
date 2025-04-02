@@ -121,10 +121,13 @@ class SSIM(LinearScaler):
         assert check_variable(clip, self.scale)
 
         l1 = self.scaler.scale(clip, width, height, shift, **(kwargs | self.kwargs))
+        l1 = core.resize.Point(l1, transfer=16, format=l1.format)
 
+        clip = core.resize.Point(clip, transfer=16, format=clip.format)
         l1_sq, c_sq = [expr_func(x, 'x dup *') for x in (l1, clip)]
 
         l2 = self.scaler.scale(c_sq, width, height, shift, **(kwargs | self.kwargs))
+        l2 = core.resize.Point(l2, transfer=16, format=l2.format)
 
         m, sl_m_square, sh_m_square = [self.filter_func(x) for x in (l1, l1_sq, l2)]
 
